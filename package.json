@@ -33,16 +33,15 @@
       "react-app/jest"
     ]
   },
+  "devDependencies": {
+    "@types/lodash": "^4.14.182"
+  },
   "browserslist": {
     "production": [
       ">0.2%",
       "not dead",
       "not op_mini all"
     ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+    "development": []
   }
 }
