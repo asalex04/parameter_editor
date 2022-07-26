@@ -1,35 +1,41 @@
 import React, {FC, useState} from 'react';
-import {Container, Row, Button, Form, Col} from 'react-bootstrap'
-import {IParamValue, IProps} from "../types";
-import {useAppDispatch, useAppSelector} from "../hooks/redux";
-import {setParamValues} from '../store/reducers/modelSlice'
+import {Container, Row, Button, Form, Col, InputGroup} from 'react-bootstrap'
+import {IParam, IProps} from "../types";
+import {useAppDispatch} from "../hooks/redux";
+import {setParams, setParamValues} from '../store/reducers/modelSlice'
+import _ from "lodash";
 
-const ParamEditor: FC<IProps> = () => {
-    const [paramValue, setParamValue] = useState({} as IParamValue)
-    const {params, model} = useAppSelector(state => state.model)
+const ParamEditor: FC<IProps> = ({params, model}) => {
+    const [paramValue, setParamValue] = useState(model.paramValues)
+    const [param, setParam] = useState<IParam[]>(params)
+    const [name, setName] = useState('')
     const dispatch = useAppDispatch()
 
-    // return (
-    //     <form>
-    //         <div style={{marginTop: 20}}>
-    //             {params.map(el => (
-    //                 <div key={el.id} style={{display: "flex", justifyContent: "center", marginBottom: 10}}>
-    //                     <div style={{marginRight: 10, display: "flex", alignItems: "start"}}>{el.name}</div>
-    //                     <input
-    //                         value={(model.paramValues.find(item => item.paramId === el.id) || model.paramValues[0]).value}
-    //                         onChange={e => setParamValue({paramId: el.id, value: e.target.value})}
-    //                     />
-    //                 </div>
-    //             ))}
-    //         </div>
-    //         <button onClick={() => dispatch(setParamValues(paramValue))}>Get model</button>
-    //     </form>
-    // );
+    const changeValue = (value: string, id: number) => {
+        setParamValue(paramValue.map(i => i.paramId === id ? {...i, 'value': value} : i))
+    }
+
+    const addParam = (value: string) => {
+        const id = +_.uniqueId()
+        setParam([...param, {id: id, 'name': value}])
+        setParamValue([...paramValue, {'paramId': id, 'value': ''}])
+        setName('')
+    }
+
+    const removeParam = (id: number) => {
+        setParam(param.filter(i => i.id !== id))
+    }
+
+    const safeForm = () => {
+        dispatch(setParamValues(paramValue))
+        dispatch(setParams(param))
+    }
+
     return (
         <Container>
             <Row className='mt-3'>
                 <Form>
-                    {params.map(el => (
+                    {param.map(el => (
                         <Row className='mt-4' key={el.id}>
                             <Col md={4}>
                                 <Form.Label>{el.name}</Form.Label>
@@ -37,12 +43,12 @@ const ParamEditor: FC<IProps> = () => {
                             <Col md={4}>
                                 <Form.Control
                                     value={(model.paramValues.find(item => item.paramId === el.id) || model.paramValues[0]).value}
-                                    //                         onChange={e => setParamValue({paramId: el.id, value: e.target.value})}
+                                    onChange={e => changeValue(e.target.value, el.id,)}
                                 />
                             </Col>
                             <Col md={4}>
                                 <Button
-                                    // onClick={() => removeInfo(i.number)}
+                                    onClick={() => removeParam(el.id)}
                                     variant={"outline-danger"}
                                 >
                                     Удалить
@@ -52,7 +58,15 @@ const ParamEditor: FC<IProps> = () => {
                     ))}
                 </Form>
                 <Container className="d-flex justify-content-evenly mt-5 mb-3 ">
-                    <Button variant='outline-success' >Добавить</Button>
+                    <InputGroup className="m-2">
+                        <Form.Control
+                            placeholder="Введите название параметра"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                        />
+                        <Button variant='outline-success' onClick={() => addParam(name)}>Добавить параметр</Button>
+                    </InputGroup>
+                    <Button variant='outline-primary' onClick={safeForm}>Сохранить форму</Button>
                 </Container>
             </Row>
         </Container>

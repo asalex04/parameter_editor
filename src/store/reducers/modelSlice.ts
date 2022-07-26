@@ -7,16 +7,7 @@ interface IState {
 }
 
 const initialState: IState = {
-    params: [
-        {
-            'id': 1,
-            'name': 'Назначение'
-        },
-        {
-            'id': 2,
-            'name': 'Длина'
-        }
-    ],
+    params: [],
 
     model: {
         paramValues: [
@@ -29,14 +20,14 @@ export const modelSlice = createSlice({
     name: 'model',
     initialState,
     reducers: {
-        getModel(state, action: PayloadAction<IModel>) {
-            state.model = action.payload
+        setParamValues(state, action: PayloadAction<IParamValue[]>) {
+            state.model.paramValues = action.payload
         },
-        setParamValues(state, action: PayloadAction<IParamValue>) {
-            state.model.paramValues = [...state.model.paramValues, action.payload]
+        setParams(state, action: PayloadAction<IParam[]>) {
+            state.params = action.payload
         }
     }
 })
 
-export const {getModel, setParamValues} = modelSlice.actions
+export const {setParamValues, setParams} = modelSlice.actions
 export default modelSlice.reducer
